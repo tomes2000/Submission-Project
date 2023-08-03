@@ -1,31 +1,30 @@
-from flask import Flask, render_template, url_for
+import os
+from flask import (
+    Flask, flash, render_template,
+    redirect, request, session, url_for)
+from flask_pymongo import PyMongo
+from bson.objectid import ObjectId
+if os.path.exists("env.py"):
+    import env
+
+
 app = Flask(__name__)
 
-posts = [
-    {
-        'author': 'Corey Schafer',
-        'title': 'Blog Post 1',
-        'content': 'First post content',
-        'date_posted': 'April 20, 2018'
-    },
-    {
-        'author': 'Jane Doe',
-        'title': 'Blog Post 2',
-        'content': 'Second post content',
-        'date_posted': 'April 21, 2018'
-    }
-]
+app.config["MONGO_DBNAME"] = os.environ.get("MONGO_DBNAME")
+app.config["MONGO_URI"] = os.environ.get("MONGO_URI")
+app.secret_key = os.environ.get("SECRET_KEY")
+
+mongo = PyMongo(app)
+
 
 @app.route("/")
-@app.route("/home")
-def home():
-    return render_template('home.html', posts=posts)
+@app.route("/get_tasks")
+def get_tasks():
+    tasks = mongo.db.tasks.find()
+    return render_template("tasks.html", tasks=tasks)
 
 
-@app.route("/about")
-def about():
-    return render_template('about.html', title='About')
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    app.run(host=os.environ.get("IP"),
+            port=int(os.environ.get("PORT")),
+            debug=True)
