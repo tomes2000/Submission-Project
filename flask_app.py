@@ -78,7 +78,13 @@ def profile(username):
     # grab the session user's username from the db
     username = mongo.db.users.find_one(
         {"username": session["user"]})["username"]
-    return render_template("profile.html", username=username)
+    
+    # update profile section so users can't force URL to someone else's profile
+    if session["user"]:
+        return render_template("profile.html", username=username)
+    # user returned to login if the profile doesn't match the session user  
+    return redirect(url_for("login"))
+
 
 if __name__ == "__main__":
     app.run(host=os.environ.get("IP"),
