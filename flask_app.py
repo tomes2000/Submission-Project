@@ -150,6 +150,11 @@ def delete_task(task_id):
 @app.route("/get_categories")
 def get_categories():
     # .find no longer works so use .find_one
+    # if "user" not in session or session["user"] != "admin":
+    #     flash("You do not have permission to view this page")
+    #     return redirect(url_for("get_tasks"))
+    # if request.method == "POST":
+
     categories = list(mongo.db.categories.find().sort("category_name", 1))
     return render_template("categories.html", categories=categories)
 
